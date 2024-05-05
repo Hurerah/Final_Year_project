@@ -1,0 +1,1 @@
+export default IP_ADDRESS="192.168.52.252";

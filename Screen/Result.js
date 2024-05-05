@@ -48,12 +48,18 @@ const styles = StyleSheet.create({
     
   },
   header: {
-    paddingVertical: 20,
+    //paddingVertical: 10,
     backgroundColor: '#023020', // Based on the header color of the image
-    borderBottomStartRadius: 30,
-    borderBottomEndRadius: 30,
+    
     paddingBottom: 10,
-    paddingTop:30
+    paddingTop:10,
+    marginTop: 20,
+    marginLeft:15,
+    marginRight:15,
+    borderBottomStartRadius: 10,
+    borderBottomEndRadius: 10,
+    borderTopStartRadius: 10,
+    borderTopEndRadius: 10,
   },
   headerTitle: {
     fontSize: 24,

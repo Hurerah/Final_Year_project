@@ -29,21 +29,14 @@ import LoginScreen from './Screen/login'
 import RegisterScreen from "./Screen/SignUp";
 import Pophandler from './component/pophandler';
 import CustomHeader from './component/header';
+import home from './Screen/home';
+import result from './Screen/Result';
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const updateStack = createStackNavigator();
 const profileStack = createStackNavigator();
 const startStack = createStackNavigator();
-// const [isUserLoggedIn, setIsUserLoggedIn] = useState(null);
 
-// useEffect(() => {
-//   const checkLoginStatus = async () => {
-//     const token = await AsyncStorage.getItem('userToken');
-//     setIsUserLoggedIn(true);
-//   };
-
-//   checkLoginStatus();
-// }, []);
 
 
 // Define Home stack navigator
@@ -52,6 +45,7 @@ const HomeStackScreen = () => (
   <HomeStack.Navigator  >
     <HomeStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
     <HomeStack.Screen name="Disease Details" component={Pophandler} options={{ headerShown: false }} />
+    <HomeStack.Screen name="Result" component={result} options={{ headerShown: false }} />
 
   </HomeStack.Navigator>
 );
@@ -65,36 +59,121 @@ const UpdateStackScreen = () => (
 );
 const ProfileStackScreen = () => (
   <profileStack.Navigator  >
-    {/* {isUserLoggedIn ? (
-          <> */}
-    <profileStack.Screen name="One" component={OnBoardingScreenOne} options={{ headerShown: false }} />
-    <profileStack.Screen name="Two" component={OnBoardingScreenTwo} options={{ headerShown: false }} />
-    <profileStack.Screen name="Three" component={OnBoardingScreenThree} options={{ headerShown: false }} />
+   
+   <profileStack.Screen name="Profilee" component={ProfileScreen} options={{ headerShown: false }} />
     <profileStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
     <profileStack.Screen name="Sign up" component={RegisterScreen} options={{ headerShown: false }} />
-    {/* </>):(<> */}
     <HomeStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-    <profileStack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
-    <updateStack.Screen name="Setting" component={SettingsScreen} options={{ headerShown: false }} />
-    {/* </>)} */}
   </profileStack.Navigator>
 );
-// const startStackScreen = () => (
-//   <startStack.Navigator  >
-//     <startStack.Screen name="One" component={ OnBoardingScreenOne} options={{ headerShown: false }} /> 
-//      <startStack.Screen name="Two" component={ OnBoardingScreenTwo} options={{ headerShown: false }} />
-//      <startStack.Screen name="Three" component={ OnBoardingScreenThree} options={{ headerShown: false }} />
+const StartStackScreen = () => (
+  
+  <Tab.Navigator initialRouteName ="Home" screenOptions={screenOptions}>
+  <Tab.Screen
+    name="Profile"
+    component={ProfileStackScreen}
+    options={{
+      tabBarIcon: ({ focused }) => (
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Ionicons name="person" size={24} color={focused ? "#023020	" : "#111"} />
+          <Text style={{ fontSize: 12, color: "#023020" }}>Profile</Text>
+        </View>
+      ),
+      headerTitle: () => <CustomHeader title="Profile" />,
+      headerRight: () => (
+        <TouchableOpacity style={{ marginRight: 15 }}>
+          <Ionicons name="person" size={26} color='white' />
+        </TouchableOpacity>
+      ),
+    }}
+  />
 
-//     <startStack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} /> 
-//      <startStack.Screen name="Sign up" component={RegisterScreen} options={{ headerShown: false }} />
-
-//     </profileStack.Navigator>
-// );
+  <Tab.Screen
+    name="Updates"
+   
+    component={UpdateStackScreen}
+    options={{
+      tabBarIcon: ({ focused }) => (
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Entypo name="list" size={24} color={focused ? "#023020" : "#111"} />
+          <Text style={{ fontSize: 12, color: "#023020" }}>Updates</Text>
+        </View>
+      ),
+      headerShown: false,
+      headerTitle: () => <CustomHeader title="Updates" />,
+      headerRight: () => (
+        <TouchableOpacity style={{ marginRight: 15 }}>
+          <Entypo name="list" size={28} color='white' />
+        </TouchableOpacity>
+      ),
+    }}
+  />
+  <Tab.Screen
+    name="Home"
+    component={HomeStackScreen}
+    options={{
+      tabBarIcon: ({ focused }) => (
+        <View style={{
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#023020",
+          width: Platform.OS === "ios" ? 70 : 60,
+          height: Platform.OS === "ios" ? 70 : 60,
+          top: Platform.OS === "ios" ? -6 : -20,
+          borderRadius: Platform.OS === "ios" ? 35 : 30,
+          borderWidth: 2,
+          borderColor: "#ffffff"
+        }}>
+          <Entypo name="leaf" size={24} color="#fff" />
+        </View>
+      ),
+      headerTitle: () => <CustomHeader title="Home" />,
+      headerRight: () => (
+        <TouchableOpacity style={{ marginRight: 15 }}>
+          <Entypo name="leaf" size={24} color="#fff" />
+        </TouchableOpacity>
+      ),
+    }}
+  />
+  <Tab.Screen
+    name="Setting"
+    component={UpdateStackScreen}
+    options={{
+      tabBarIcon: ({ focused }) => (
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <MaterialIcons name="settings" size={24} color={focused ? "#023020" : "#111"} />
+          <Text style={{ fontSize: 12, color: "#023020" }}>Setting</Text>
+        </View>
+      ),
+      headerTitle: () => <CustomHeader title="Settings" />,
+      headerRight: () => (
+        <TouchableOpacity style={{ marginRight: 15 }}>
+          <MaterialCommunityIcons name='cog-outline' size={28} color='white' />
+        </TouchableOpacity>
+      ),
+    }}
+  />
+  <Tab.Screen
+    name="Support"
+    component={ContactUsScreen}
+    options={{
+      tabBarIcon: ({ focused }) => (
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Entypo name="paper-plane" size={24} color={focused ? "#023020" : "#111"} />
+          <Text style={{ fontSize: 12, color: "#023020" }}>Support</Text>
+        </View>
+      ),
+      headerTitle: () => <CustomHeader title="Support" />,
+      headerRight: () => (
+        <TouchableOpacity style={{ marginRight: 15 }}>
+          <Entypo name="paper-plane" size={28} color='white' />
+        </TouchableOpacity>
+      ),
+    }}
+  />
+</Tab.Navigator>
+);
 const Stack = createNativeStackNavigator();
-
-
-
-
 const screenOptions = {
   tabBarShowLabel: false,
   tabBarStyle: {
@@ -118,135 +197,16 @@ const screenOptions = {
 export default function App() {
   return (
     <NavigationContainer>
-      {/* <Stack.Navigator>
-        <Stack.Group screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="SplashScreen" component={SplashScreen} />
-          <Stack.Screen
-            name="OnBoardingScreenOne"
-            component={OnBoardingScreenOne}
-          />
-          <Stack.Screen
-            name="OnBoardingScreenTwo"
-            component={OnBoardingScreenTwo}
-          />
-          <Stack.Screen
-            name="OnBoardingScreenThree"
-            component={OnBoardingScreenThree}
-          />
-        </Stack.Group>
-      </Stack.Navigator>
-       */}
       <StatusBar style="auto" />
-      <Tab.Navigator initialRouteName="HomeStackScreen" screenOptions={screenOptions}>
-        <Tab.Screen
-          name="Profile"
-          component={ProfileStackScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Ionicons name="person" size={24} color={focused ? "#023020	" : "#111"} />
-                <Text style={{ fontSize: 12, color: "#023020" }}>Profile</Text>
-              </View>
-            ),
-            headerTitle: () => <CustomHeader title="Profile" />,
-            headerRight: () => (
-              <TouchableOpacity style={{ marginRight: 15 }}>
-                <Ionicons name="person" size={26} color='white' />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Updates"
-          // component={Leaftype} // Use the component directly
-          // initialParams={{ // Pass parameters using initialParams
-          //   leafType: "Corn",
-          //   disease: "Canker", 
-          //   causes: 'Leaf diseases in apple trees can be caused by various factors, including fungal pathogens, bacterial infections, environmental stressors, and poor orchard management practices. Fungal diseases often thrive in humid conditions, while bacterial infections can spread through contaminated equipment or insect vectors',
-          //   remedies:'Leaf diseases in apple trees can be caused by various factors, including fungal pathogens, bacterial infections, environmental stressors, and poor orchard management practices. Fungal diseases often thrive in humid conditions, while bacterial infections can spread through contaminated equipment or insect vectors'
-          // }}
-          component={UpdateStackScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Entypo name="list" size={24} color={focused ? "#023020" : "#111"} />
-                <Text style={{ fontSize: 12, color: "#023020" }}>Updates</Text>
-              </View>
-            ),
-            headerShown: false,
-            headerTitle: () => <CustomHeader title="Updates" />,
-            headerRight: () => (
-              <TouchableOpacity style={{ marginRight: 15 }}>
-                <Entypo name="list" size={28} color='white' />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Home"
-          component={HomeStackScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={{
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#023020",
-                width: Platform.OS === "ios" ? 70 : 60,
-                height: Platform.OS === "ios" ? 70 : 60,
-                top: Platform.OS === "ios" ? -6 : -20,
-                borderRadius: Platform.OS === "ios" ? 35 : 30,
-                borderWidth: 2,
-                borderColor: "#ffffff"
-              }}>
-                <Entypo name="leaf" size={24} color="#fff" />
-              </View>
-            ),
-            headerTitle: () => <CustomHeader title="Home" />,
-            headerRight: () => (
-              <TouchableOpacity style={{ marginRight: 15 }}>
-                <Entypo name="leaf" size={24} color="#fff" />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Setting"
-          component={UpdateStackScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <MaterialIcons name="settings" size={24} color={focused ? "#023020" : "#111"} />
-                <Text style={{ fontSize: 12, color: "#023020" }}>Setting</Text>
-              </View>
-            ),
-            headerTitle: () => <CustomHeader title="Settings" />,
-            headerRight: () => (
-              <TouchableOpacity style={{ marginRight: 15 }}>
-                <MaterialCommunityIcons name='cog-outline' size={28} color='white' />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Support"
-          component={ContactUsScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Entypo name="paper-plane" size={24} color={focused ? "#023020" : "#111"} />
-                <Text style={{ fontSize: 12, color: "#023020" }}>Support</Text>
-              </View>
-            ),
-            headerTitle: () => <CustomHeader title="Support" />,
-            headerRight: () => (
-              <TouchableOpacity style={{ marginRight: 15 }}>
-                <Entypo name="paper-plane" size={28} color='white' />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-      </Tab.Navigator>
+      <Stack.Navigator>
+          <Stack.Screen name="One" component={OnBoardingScreenOne} options={{ headerShown: false }}  />
+          <Stack.Screen name="Two" component={OnBoardingScreenTwo} options={{ headerShown: false }} />
+          <Stack.Screen name="Three" component={OnBoardingScreenThree} options={{ headerShown: false }} />
+        
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}  />
+          <Stack.Screen name="Signup" component={RegisterScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Homee" component={StartStackScreen} options={{ headerShown: false }} />
+        </Stack.Navigator> 
     </NavigationContainer>
   );
 }

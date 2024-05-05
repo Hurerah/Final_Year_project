@@ -21,7 +21,7 @@ const Output = ({ predictions }) => {
       </View>
     );
   } else {
-    content = <Text style={styles.noPrediction}>Upload or Take an image of a leaf to analyze for disease</Text>;
+    content = <Text style={styles.noPrediction}>      Upload/Capture an image</Text>;
   }
 
   return (

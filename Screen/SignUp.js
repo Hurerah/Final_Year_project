@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -8,17 +8,60 @@ import {
   Image
 } from 'react-native';
 
-import DatePicker from 'react-native-date-picker';
+//import DatePicker from 'react-native-date-picker';
 import InputField from '../component/InputField';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from '../component/CustomButton';
 import logoImage from '../assets/logo.png';
+import axios from 'axios';
+import IP_ADDRESS from '../config'
 const RegisterScreen = ({navigation}) => {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState('');
   const [open, setOpen] = useState(false);
-  const [dobLabel, setDobLabel] = useState('Date of Birth');
-
+  const [email, setemail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  const [cnfPassword, setCnfPassword] = useState('');
+  const [username, setusername] = useState('');
+  const [contact, setcontact] = useState('');
+  const [messagee, setmessagee] = useState('');
+  const [statuss, setstatuss] = useState('');
+  useEffect(() => {
+    if (statuss === 'SUCCESS') {
+      setPassword('')
+      setemail("")
+      setusername('')
+      setCnfPassword('')
+      setDate('')
+      navigation.navigate('Homee');;
+    }
+  }, [statuss]);
+  
+  const handlesignup =()=>{
+    
+      console.log('helo',email, password)
+      axios.post( `http://${IP_ADDRESS}:3000/user/signup`, {
+        username:username,
+        email: email,
+        password: password,
+        cnf_password:cnfPassword,
+        dateOfBirth:date
+      })
+      .then(response => {
+        
+        const result=response.data
+        const {message, status,data} =result;
+        
+        console.log(status,message,data)
+        setmessagee(message)
+        setstatuss(status)
+      })
+      .catch(error => {
+        console.log('signup failed:', error);
+        
+      });
+    }
   return (
     <SafeAreaView style={{flex: 1, justifyContent: 'center'}}>
       <ScrollView
@@ -29,7 +72,7 @@ const RegisterScreen = ({navigation}) => {
             {/* Using an Image component instead of SVG */}
             <Image
               source={logoImage}
-              style={{height: 130, width: 130}}
+              style={{height: 130, width: 130,paddingTop:200}}
             />
           </View>
         
@@ -55,6 +98,8 @@ const RegisterScreen = ({navigation}) => {
               style={{marginRight: 5}}
             />
           }
+          value={username}
+          onChangeText={setusername}
         />
 
         <InputField
@@ -68,57 +113,60 @@ const RegisterScreen = ({navigation}) => {
             />
           }
           keyboardType="email-address"
+          value={email}
+          onChangeText={setemail}
         />
 
         <InputField
           label={'Password'}
           icon={
-            <Ionicons
-              name="ios-lock-closed-outline"
+            <MaterialIcons
+              name="lock"
               size={20}
               color="#666"
               style={{marginRight: 5}}
             />
           }
           inputType="password"
+          value={password}
+          onChangeText={setPassword}
         />
 
         <InputField
           label={'Confirm Password'}
           icon={
-            <Ionicons
-              name="ios-lock-closed-outline"
+            <MaterialIcons
+              name="lock"
               size={20}
               color="#666"
               style={{marginRight: 5}}
             />
           }
           inputType="password"
+          value={cnfPassword}
+          onChangeText={setCnfPassword}
         />
 
 
-        <View
-          style={{
-            flexDirection: 'row',
-            borderBottomColor: '#ccc',
-            borderBottomWidth: 1,
-            paddingBottom: 8,
-            marginBottom: 30,
-          }}>
-          <Ionicons
+        
+            <InputField
+          label={'Date Of Birth (2000-12-11)'}
+          icon={
+            <Ionicons
             name="calendar-outline"
             size={20}
             color="#666"
             style={{marginRight: 5}}
           />
-          <TouchableOpacity onPress={() => setOpen(true)}>
-            <Text style={{color: '#666', marginLeft: 5, marginTop: 5}}>
-              {dobLabel}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <CustomButton label={'Register'} onPress={()=>navigation.navigate('Profile' )} />
+          }
+          value={date}
+          onChangeText={setDate}
+          
+         />
+          <Text style={{ color:'red',  justifyContent: 'center', marginBottom: 10, marginTop: 10 }}> 
+            {statuss}: {messagee}
+          </Text>
+        <CustomButton label={'Register'} onPress={handlesignup} />
 
         <View
           style={{

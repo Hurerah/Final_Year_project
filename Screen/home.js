@@ -13,7 +13,8 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ImageBackground
+  ImageBackground,
+  FlatList
 } from 'react-native';
 import Background from '../component/background'; // Import the Background component
 // Third-party imports for icons and TensorFlow.js
@@ -78,12 +79,16 @@ export default HomeScreen = ({ navigation }) => {
   const [leafType, setLeafType] = useState('');
   const [disease, setDisease] = useState('');
 
+  const [test, setTest] = useState(false);
   const [predictions, setPredictions] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [name, setname] = useState();
   const [val, setval] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
+  const [pre, setPre] = useState('Upload/Capture an image');
+  const [displaySuggestions, setDisplaySuggestions] = useState([]);
+  const [suggestions, setsuggestions] = useState([]);
   //   (async () => {
   //     setIsLoading(true); // Start loading
   //     try {
@@ -157,6 +162,9 @@ export default HomeScreen = ({ navigation }) => {
     setBananaModel(model6)
     // Use model2 as needed
   };
+// useEffect(()=>{
+//       setPre('Processing')
+//     },[test])
 
   useEffect(() => {
     loadModelsSequentially()
@@ -164,24 +172,7 @@ export default HomeScreen = ({ navigation }) => {
       .catch(error => console.error('Model loading error:', error));
   }, []);
 
-  const imageToTensor = async (source, size) => {
-    const response = await fetch(source.uri, {}, { isBinary: true });
-    const rawImageData = await response.arrayBuffer();
-    const { width, height, data } = jpeg.decode(rawImageData, { useTArray: true });
 
-    const buffer = new Uint8Array(width * height * 3);
-    let offset = 0;
-    for (let i = 0; i < buffer.length; i += 3) {
-      buffer[i] = data[offset];
-      buffer[i + 1] = data[offset + 1];
-      buffer[i + 2] = data[offset + 2];
-      offset += 4;
-    }
-
-    const img = tf.tensor3d(buffer, [width, height, 3]);
-    const resizedImg = tf.image.resizeBilinear(img, [size, size]);
-    return resizedImg.expandDims(0).toFloat().div(tf.scalar(255));
-  };
 
   useEffect(() => {
     (async () => {
@@ -194,8 +185,31 @@ export default HomeScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    setSearchQuery(''); // This will clear the input field
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      setSearchQuery('');
+      setDisplaySuggestions('');
+    });
+
+    return unsubscribe; // Cleanup function to prevent memory leaks
+  }, [navigation]); // Re-run useEffect only when navigation changes
+
+  useEffect(() => {
+      const allNames = POPULAR_PLANTS.map(plant => plant.name);
+      const uniqueNames = [...new Set(allNames)]; // Convert array to set to remove duplicates
+      setsuggestions(uniqueNames);
+    }, []);
+ 
+  useEffect(()=>{
+    console.log(leafType,disease)
+    const foundplant = POPULAR_PLANTS.find(p => p.name.toLowerCase() == disease.toLowerCase());
+    if (foundplant)
+      {
+          navigation.navigate({ name:'Result',
+          params:
+            { leafType: leafType, disease:foundplant.name ,causes:foundplant.causes ,remedies:foundplant.remedies }
+        })
+      }
+  },[predictions])
 
   const resetState = () => {
     setImage(null);
@@ -284,7 +298,28 @@ export default HomeScreen = ({ navigation }) => {
     return { leafType, disease };
   };
   
+  const imageToTensor = async (source, size) => {
+    const response = await fetch(source.uri, {}, { isBinary: true });
+    const rawImageData = await response.arrayBuffer();
+    const { width, height, data } = jpeg.decode(rawImageData, { useTArray: true });
+
+    const buffer = new Uint8Array(width * height * 3);
+    let offset = 0;
+    for (let i = 0; i < buffer.length; i += 3) {
+      buffer[i] = data[offset];
+      buffer[i + 1] = data[offset + 1];
+      buffer[i + 2] = data[offset + 2];
+      offset += 4;
+    }
+
+    const img = tf.tensor3d(buffer, [width, height, 3]);
+    const resizedImg = tf.image.resizeBilinear(img, [size, size]);
+    return resizedImg.expandDims(0).toFloat().div(tf.scalar(255));
+  };
+
   const handleImageSelection = async () => {
+
+    
     try {
       const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync();
       const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -295,19 +330,18 @@ export default HomeScreen = ({ navigation }) => {
       }
 
 
-      let response;
+      let response=null;
       const action = await showImagePickerOptions(); // Implement this function based on your UI
       if (action === 'camera') {
-        response = await ImagePicker.launchCameraAsync();
-      } else {
+        response = await ImagePicker.launchCameraAsync();      }
+     else {
         response = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           quality: 1,
           aspect: [4, 3],
         });
-      }
-
+             }
       // Convert image to tensor
       const imageTensorSize128 = await imageToTensor(response, 128);
       const imageTensorSize224 = await imageToTensor(response, 224);
@@ -346,8 +380,6 @@ export default HomeScreen = ({ navigation }) => {
 
   };
 
-  
-
   const handleSpecificDiseasePrediction = async (leafTypeIndex, imageTensor, model) => {
     const diseasePrediction = await model.predict(imageTensor).data();
     console.log(diseasePrediction);
@@ -365,10 +397,20 @@ export default HomeScreen = ({ navigation }) => {
     });
     //navigate to result screen with params leaftype, disease 
 
+    
   };
   
-
-
+  const updateSearchQuery = (input) => {
+    
+    if (input.length > 2) { // Only show suggestions if the input length is greater than 2
+      const filteredSuggestions = suggestions.filter(suggestion =>
+        suggestion.toLowerCase().includes(input.toLowerCase())
+      );
+      setDisplaySuggestions(filteredSuggestions);
+    } else {
+      setDisplaySuggestions([]);
+    }
+  };
 
   async function showImagePickerOptions() {
     return new Promise((resolve) => {
@@ -399,6 +441,8 @@ export default HomeScreen = ({ navigation }) => {
 
     if (foundplant) {
       setval(foundplant.id);
+      
+      console.log(displaySuggestions)
     } else {
       setval(0)
       console.log("No matching plant found.");
@@ -424,21 +468,20 @@ export default HomeScreen = ({ navigation }) => {
 
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 80}
-    >
+    // <KeyboardAvoidingView
+    //   style={styles.container}
+    //   behavior={Platform.OS === "ios" ? "padding" : "height"}
+    //   keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 80}
+    // >
       <ImageBackground
         source={require('../assets/back1.jpg')}
         style={styles.background}
       >
         <ScrollView style={styles.fullScreen}>
 
-          <ScrollView style={styles.container}>
             <ScrollView horizontal={true} style={styles.carouselContainer} showsHorizontalScrollIndicator={false}>
-              {POPULAR_PLANTS.map(renderPlantCard)}
-            </ScrollView>
+              {POPULAR_PLANTS.map(renderPlantCard)}</ScrollView>
+
             <View style={styles.welcomeContainer}>
               <Text style={styles.headerText}>Welcome to Leaf Care</Text>
               <Text style={styles.infoText}>
@@ -447,32 +490,46 @@ export default HomeScreen = ({ navigation }) => {
             </View>
 
             <CaptureButton onPress={handleImageSelection} imageSource={require('../assets/Leafbutton.png')} />
-
-            <Output predictions={predictions} />
-
+            {/* <Text style={styles.noPrediction}>      Upload/Capture an image</Text>; */}
+            {/* <Output predictions={predictions} /> */}
+            <Text style={styles.noPrediction}>{pre}</Text>
             <View style={styles.searchContainer}>
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search plant by name"
                 value={searchQuery}
-                onChangeText={setSearchQuery}
-                onSubmitEditing={handleSubmitEditing}
+                onChangeText={(e) => { setSearchQuery(e); updateSearchQuery(e); }}
+                onSubmitEditing={() =>{ handleSubmitEditing}}
               />
-
+              
+            <View style={styles.liist}>
+                <FlatList
+                  data={displaySuggestions}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => { setSearchQuery(item); handleSubmitEditing(); }}>
+                      <Text>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+              </View>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Disease Details',
-                  { val: val })}
+                onPress={()=>{handleSubmitEditing, 
+                  navigation.navigate(
+                      { name:'Disease Details',
+                        params:
+                          { val: val, searchQuery:searchQuery }
+                      }) 
+                }}
                 style={styles.searchButton}>
                 <MaterialIcons name="search" size={25} color="#FFFFFF" />
               </TouchableOpacity>
 
             </View>
-          </ScrollView>
         </ScrollView>
       </ImageBackground>
 
-    </KeyboardAvoidingView>
-    //</Background>
+    // </KeyboardAvoidingView>
   );
 }
 
@@ -497,6 +554,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 10,
     marginRight: 10,
+   
+
+
   },
   plantImage: {
     width: 150,
@@ -533,14 +593,15 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-    marginBottom: 20,
+    //marginBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-    marginTop: 20, // Add margin at the top to place it below the buttons
+   // marginTop: 5, // Add margin at the top to place it below the buttons
     alignSelf: 'center', // Center the container
     width: '90%', // Increase the width to make the search box appear bigger
+    
   },
 
   // Adjust the searchInput to fill the searchContainer
@@ -583,7 +644,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     color: '#023020',
-    marginTop: 30,
+    marginTop: 5,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -623,7 +684,7 @@ const styles = StyleSheet.create({
     color: '#023020', // Icon color, you can choose any color
   },
   infoSection: {
-    marginVertical: 20,
+    marginVertical: 10,
     padding: 15,
     backgroundColor: '#023020',
     borderRadius: 20,
@@ -687,9 +748,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   background: {
-    flex: 1,
-    width: '100%',
-    height: '100%'
+    // flex: 1,
+    // width: '100%',
+    // height: '100%',
+    position: 'absolute', 
+   top: 0,
+    left: 0, 
+    right: 0,
+     bottom: 0
+
   },
   cardContainer: {
     width: 180, // fixed width for the card
@@ -746,5 +813,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#388E3C', // A slightly darker shade of the button color for contrast
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  liist:{
+    //flexDirection: 'row',
+     // paddingHorizontal: 20,
+      //marginTop: 20, // Add margin at the top to place it below the buttons
+      alignSelf: 'center', // Center the container
+      //width: '90%',
+     // marginLeft:10,
+  },
+  noPrediction: {
+    fontSize: 16,
+    color: 'gray',
+    marginLeft:80,
+    padding: 15,
   },
 });
