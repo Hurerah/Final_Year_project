@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import logoImage from '../assets/logo.png';
@@ -24,8 +25,10 @@ const LoginScreen = ({navigation}) => {
   const [messagee, setmessagee] = useState('');
   const [statuss, setstatuss] = useState('');
   const [dataa, setdataa] = useState('');
-  
   const [errorr, seterrorr] = useState('');
+  // const keyObject = { email };
+  const keyString = JSON.stringify(email); // Convert object key to string
+
   useEffect(() => {
     if (statuss === 'SUCCESS') {
       
@@ -33,6 +36,30 @@ const LoginScreen = ({navigation}) => {
       navigation.navigate('Homee');;
     }
   }, [statuss]);
+  
+const  authenticateUserFromStorage =  async() => {
+  try {
+    const storedPassword = await AsyncStorage.getItem(email);
+    console.log(email,'password  ',password,'password :: ',storedPassword)
+    if (storedPassword === password) {
+      console.log('User authenticated.');
+      setmessagee('User authenticated.');
+      setstatuss('SUCCESS');
+      //handleLogin(); // Assuming this is a function to handle login failure
+      return true;
+    } else {
+      console.log('Invalid credentials.');
+      setmessagee('Invalid credentials.');
+      setstatuss('Failed');
+      return false;
+    }
+  } catch (error) {
+    console.error('Authentication error:', error);
+    setmessagee('Authentication error:');
+    setstatuss('Failed');
+    return false;
+  }
+};
   
   const handlelogin =()=>{
       console.log('helo',email, password)
@@ -109,7 +136,7 @@ const LoginScreen = ({navigation}) => {
             {statuss}: {messagee}
           </Text>
           
-          <CustomButton label={"Login"} onPress={handlelogin} />
+          <CustomButton label={"Login"} onPress={authenticateUserFromStorage} />
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 30, marginTop: 30 }}>
             <Text>New to the app?</Text>

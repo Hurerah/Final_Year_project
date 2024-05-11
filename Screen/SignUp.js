@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 
 //import DatePicker from 'react-native-date-picker';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import InputField from '../component/InputField';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -21,7 +23,7 @@ const RegisterScreen = ({navigation}) => {
   const [open, setOpen] = useState(false);
   const [email, setemail] = useState('');
   const [password, setPassword] = useState('');
-  
+  const [dataa, setdataa] = useState('');
   const [cnfPassword, setCnfPassword] = useState('');
   const [username, setusername] = useState('');
   const [contact, setcontact] = useState('');
@@ -37,7 +39,15 @@ const RegisterScreen = ({navigation}) => {
       navigation.navigate('Homee');;
     }
   }, [statuss]);
-  
+    // Function to save username and password to AsyncStorage
+  const saveCredentialsToStorage = async (email, password) => {
+    try {
+      await AsyncStorage.setItem(email, password);
+      console.log('Credentials saved to AsyncStorage.');
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+    }
+  };
   const handlesignup =()=>{
     
       console.log('helo',email, password)
@@ -56,6 +66,9 @@ const RegisterScreen = ({navigation}) => {
         console.log(status,message,data)
         setmessagee(message)
         setstatuss(status)
+        setdataa(data)
+        saveCredentialsToStorage(email,password)
+        console.log('storage ',AsyncStorage.getAllKeys());
       })
       .catch(error => {
         console.log('signup failed:', error);

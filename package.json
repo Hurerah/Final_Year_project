@@ -23,6 +23,7 @@
     "@tensorflow/tfjs-backend-cpu": "^4.17.0",
     "@tensorflow/tfjs-react-native": "^1.0.0",
     "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "expo": "~49.0.15",
     "expo-camera": "^13.6.0",
