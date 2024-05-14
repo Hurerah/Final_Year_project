@@ -1,1 +1,1 @@
-export default IP_ADDRESS="192.168.52.252";
+export default IP_ADDRESS="10.54.8.104";

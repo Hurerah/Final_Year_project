@@ -1,5 +1,6 @@
 // React and React Native core imports
 import React, { useState, useEffect } from 'react';
+
 import {
   StyleSheet,
   View,
@@ -16,30 +17,20 @@ import {
   ImageBackground,
   FlatList
 } from 'react-native';
-import Background from '../component/background'; // Import the Background component
 // Third-party imports for icons and TensorFlow.js
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import * as tf from '@tensorflow/tfjs';
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
 import CaptureButton from '../component/CaptureButton';
 // Expo permissions and image picker for handling media
-import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
-
 // Additional utilities
 import * as jpeg from 'jpeg-js';
 
 // Local imports from your project structure
-import Output from '../Output';
 import POPULAR_PLANTS from '../src/api/diseases';
 
-import LoadingScreen from '../component/LoadingAnimation';
-import Pophandler from '../component/pophandler';
-import { LeafTypeScreen } from '../Screen/Result'; // Import the LeafTypeScreen component
-// Note: Ensure you have the necessary packages installed:
-// For icons, TensorFlow.js, permissions, and image picker:
-// expo install @expo/vector-icons expo-permissions expo-image-picker
-// npm install @tensorflow/tfjs @tensorflow/tfjs-react-native jpeg-js
+
 
 
 class CustomL2Regularizer {
@@ -89,51 +80,7 @@ export default HomeScreen = ({ navigation }) => {
   const [pre, setPre] = useState('Upload/Capture an image');
   const [displaySuggestions, setDisplaySuggestions] = useState([]);
   const [suggestions, setsuggestions] = useState([]);
-  //   (async () => {
-  //     setIsLoading(true); // Start loading
-  //     try {
-  //       await tf.ready();
-  //       setTfReady(true);
-  //       tf.serialization.registerClass(CustomL2Regularizer);
-
-  //       const modelJson = require('../models/LeafType/model.json');
-  //       const weights = require('../models/LeafType/shared.bin');
-  //       const loadedModel = await tf.loadLayersModel(bundleResourceIO(modelJson, weights));
-  //       setLeafTypemodel(loadedModel);
-  //       console.log(" Leaf Type Model loaded successfully");
-  //       loadedModel.dispose();
-  //       const appleModelJson = require('../models/Apple/model.json');
-  //       const appleWeights = require('../models/Apple/weights.bin');
-  //       const appleModel = await tf.loadLayersModel(bundleResourceIO(appleModelJson, appleWeights));
-  //       setAppleModel(appleModel);
-  //       console.log("Apple Type Model loaded successfully");
-  //       appleModel.dispose();
-  //       const cornModelJson = require('../models/Apple/model.json');
-  //       const cornWeights = require('../models/Apple/weights.bin');
-  //       const cornModel = await tf.loadLayersModel(bundleResourceIO(appleModelJson, appleWeights));
-  //       setCornModel(cornModel);
-  //       console.log("Corn Type Model loaded successfully");
-
-  //       const CitrusModelJson = require('../models/Apple/model.json');
-  //       const CitrusWeights = require('../models/Apple/weights.bin');
-  //       const CitrusModel = await tf.loadLayersModel(bundleResourceIO(appleModelJson, appleWeights));
-  //       setCitrusModel(CitrusModelModel);
-  //       console.log("Citrus Type Model loaded successfully");
-
-  //       const TomatoModelJson = require('../models/Apple/model.json');
-  //       const TomatoWeights = require('../models/Apple/weights.bin');
-  //       const TomatoModel = await tf.loadLayersModel(bundleResourceIO(appleModelJson, appleWeights));
-  //       setTomatoModel(TomatoModelModel);
-  //       console.log("Tomato Type Model loaded successfully");
-
-
-  //     } catch (error) {
-  //       console.error("Error loading TensorFlow model:", error);
-  //     }
-  //     setIsLoading(false); // End loading once everything is done
-  //     await getPermissionAsync(); // Assume this is an async operation
-  //   })();
-  // }, []);
+  const [thresholdedImageUri, setThresholdedImageUri] = useState(null);
 
 
   const loadModel = async (modelJson, modelWeights) => {
@@ -162,9 +109,9 @@ export default HomeScreen = ({ navigation }) => {
     setBananaModel(model6)
     // Use model2 as needed
   };
-// useEffect(()=>{
-//       setPre('Processing')
-//     },[test])
+  // useEffect(()=>{
+  //       setPre('Processing')
+  //     },[test])
 
   useEffect(() => {
     loadModelsSequentially()
@@ -194,22 +141,22 @@ export default HomeScreen = ({ navigation }) => {
   }, [navigation]); // Re-run useEffect only when navigation changes
 
   useEffect(() => {
-      const allNames = POPULAR_PLANTS.map(plant => plant.name);
-      const uniqueNames = [...new Set(allNames)]; // Convert array to set to remove duplicates
-      setsuggestions(uniqueNames);
-    }, []);
- 
-  useEffect(()=>{
-    console.log(leafType,disease)
+    const allNames = POPULAR_PLANTS.map(plant => plant.name);
+    const uniqueNames = [...new Set(allNames)]; // Convert array to set to remove duplicates
+    setsuggestions(uniqueNames);
+  }, []);
+
+  useEffect(() => {
+    console.log(leafType, disease)
     const foundplant = POPULAR_PLANTS.find(p => p.name.toLowerCase() == disease.toLowerCase());
-    if (foundplant)
-      {
-          navigation.navigate({ name:'Result',
-          params:
-            { leafType: leafType, disease:foundplant.name ,causes:foundplant.causes ,remedies:foundplant.remedies }
-        })
-      }
-  },[predictions])
+    if (foundplant) {
+      navigation.navigate({
+        name: 'Result',
+        params:
+          { leafType: leafType, disease: foundplant.name, causes: foundplant.causes, remedies: foundplant.remedies }
+      })
+    }
+  }, [predictions])
 
   const resetState = () => {
     setImage(null);
@@ -219,10 +166,10 @@ export default HomeScreen = ({ navigation }) => {
   const determineDisease = (diseaseIndex, leafTypeIndex) => {
     let leafType = '';
     let disease = '';
-  
+
     // Map leaf type index to its name
     switch (leafTypeIndex) {
-      case 0: 
+      case 0:
         leafType = "Apple";
         break;
       case 1:
@@ -241,7 +188,7 @@ export default HomeScreen = ({ navigation }) => {
         console.log("Leaf type not recognized.");
         leafType = "Unknown";
     }
-  
+
     // Based on the leaf type, map disease index to its name
     if (leafType === "Apple") {
       switch (diseaseIndex) {
@@ -294,10 +241,10 @@ export default HomeScreen = ({ navigation }) => {
     } else {
       disease = "Unknown Disease"; // Fallback for when the leaf type is not recognized
     }
-  
+
     return { leafType, disease };
   };
-  
+
   const imageToTensor = async (source, size) => {
     const response = await fetch(source.uri, {}, { isBinary: true });
     const rawImageData = await response.arrayBuffer();
@@ -317,9 +264,91 @@ export default HomeScreen = ({ navigation }) => {
     return resizedImg.expandDims(0).toFloat().div(tf.scalar(255));
   };
 
+  // const applyThreshold = (imgTensor, threshold) => {
+  //   return imgTensor.div(tf.scalar(255)) // Normalize the image to [0, 1]
+  //     .greater(tf.scalar(threshold)) // Apply threshold
+  //     .mul(tf.scalar(255)); // Scale back to [0, 255] for image display
+  // };
+  // // const [imageUri, setImageUri] = useState(null);
+
+
+  const [imageUri, setImageUri] = useState(null);
+  const [processedImageUri, setProcessedImageUri] = useState(null);
+  
+  const processImage = async (base64) => {
+    const imageTensor = tf.browser.fromPixels({
+      data: new Uint8Array(tf.util.base64.decode(base64)),
+      width: 1080,
+      height: 1920
+    });
+  
+    // Convert to grayscale
+    const gray = imageTensor.mean(2);
+  
+    // Apply threshold
+    const thresholded = gray.step(127); // Threshold value can be adjusted
+    
+    // Convert back to image
+    const blob = await tf.browser.toBlob(thresholded);
+    const urlCreator = window.URL || window.webkitURL;
+    const imageUrl = urlCreator.createObjectURL(blob);
+    console.log(imageUrl)
+    setProcessedImageUri(imageUrl);
+  };
+  
+  useEffect(() => {
+    if (processedImageUri) {
+      console.log('Image URI:', processedImageUri);
+      // You can also navigate or do further processing here
+    }
+  }, [processedImageUri]); // This will log or perform actions every time processedImageUri updates
+  
+// Assuming you're handling the response somewhere here
+
+
+
+
+
+  // const tensorToUri = async (tensor) => {
+  //   try {
+  //     const byteData = await tensor.data(); // Get tensor data as TypedArray
+  //     const shape = tensor.shape;
+  //     const width = shape[1];
+  //     const height = shape[0];
+
+  //     // Assuming tensor is a 3D tensor (height x width x 3)
+  //     const imageData = new Uint8Array(width * height * 4);
+
+  //     let pixelIndex = 0;
+  //     for (let i = 0; i < byteData.length; i += 3) {
+  //       imageData[pixelIndex++] = byteData[i];     // R
+  //       imageData[pixelIndex++] = byteData[i + 1]; // G
+  //       imageData[pixelIndex++] = byteData[i + 2]; // B
+  //       imageData[pixelIndex++] = 255;             // A
+  //     }
+
+  //     // Convert image data to base64
+  //     const rawImageData = { data: imageData, width, height };
+  //     const blob = new Blob([imageData], { type: 'image/png' });
+  //     const reader = new FileReader();
+  //     reader.readAsDataURL(blob);
+  //     reader.onloadend = function () {
+  //       const base64data = reader.result;
+  //       //console.log(base64data);
+  //       return base64data;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error processing tensor to URI:", error);
+  //     throw error;
+  //   }
+  // };
+
+
+
+
   const handleImageSelection = async () => {
 
-    
+
     try {
       const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync();
       const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -330,27 +359,31 @@ export default HomeScreen = ({ navigation }) => {
       }
 
 
-      let response=null;
+      let response = null;
       const action = await showImagePickerOptions(); // Implement this function based on your UI
       if (action === 'camera') {
-        response = await ImagePicker.launchCameraAsync();      }
-     else {
+        response = await ImagePicker.launchCameraAsync();
+      }
+      else {
         response = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           quality: 1,
           aspect: [4, 3],
         });
-             }
+      }
       // Convert image to tensor
-      const imageTensorSize128 = await imageToTensor(response, 128);
       const imageTensorSize224 = await imageToTensor(response, 224);
-
-      // Predict leaf type
+  
       const leafTypePrediction = await LeafTypemodel.predict(imageTensorSize224).data();
       console.log(leafTypePrediction)
       const leafTypeIndex = leafTypePrediction.indexOf(Math.max(...leafTypePrediction))
       console.log(leafTypeIndex)
+      console.log("Listing all layer names:");
+      LeafTypemodel.layers.forEach((layer, index) => {
+        console.log(`Layer ${index + 1}: ${layer.name}`);
+      });
+
 
       // Based on the index, decide which model to use for further prediction
       switch (leafTypeIndex) {
@@ -387,7 +420,6 @@ export default HomeScreen = ({ navigation }) => {
     console.log(`Disease Index ${diseaseIndex}, Leaf Type Index ${leafTypeIndex}`);
     const { leafType, disease } = determineDisease(diseaseIndex, leafTypeIndex);
     console.log(`Disease Name ${disease}, Leaf Type ${leafType}`);
-    // Now you can set them in the state if needed or use them directly
     setLeafType(leafType);
     setDisease(disease);
 
@@ -395,13 +427,12 @@ export default HomeScreen = ({ navigation }) => {
       leafType, // The detected type of the leaf
       disease   // The detected disease
     });
-    //navigate to result screen with params leaftype, disease 
 
-    
+
   };
-  
+
   const updateSearchQuery = (input) => {
-    
+
     if (input.length > 2) { // Only show suggestions if the input length is greater than 2
       const filteredSuggestions = suggestions.filter(suggestion =>
         suggestion.toLowerCase().includes(input.toLowerCase())
@@ -441,7 +472,7 @@ export default HomeScreen = ({ navigation }) => {
 
     if (foundplant) {
       setval(foundplant.id);
-      
+
       console.log(displaySuggestions)
     } else {
       setval(0)
@@ -473,61 +504,66 @@ export default HomeScreen = ({ navigation }) => {
     //   behavior={Platform.OS === "ios" ? "padding" : "height"}
     //   keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 80}
     // >
-      <ImageBackground
-        source={require('../assets/back1.jpg')}
-        style={styles.background}
-      >
-        <ScrollView style={styles.fullScreen}>
+    <ImageBackground
+      source={require('../assets/back1.jpg')}
+      style={styles.background}
+    >
+      <ScrollView style={styles.fullScreen}>
 
-            <ScrollView horizontal={true} style={styles.carouselContainer} showsHorizontalScrollIndicator={false}>
-              {POPULAR_PLANTS.map(renderPlantCard)}</ScrollView>
+        <ScrollView horizontal={true} style={styles.carouselContainer} showsHorizontalScrollIndicator={false}>
+          {POPULAR_PLANTS.map(renderPlantCard)}</ScrollView>
 
-            <View style={styles.welcomeContainer}>
-              <Text style={styles.headerText}>Welcome to Leaf Care</Text>
-              <Text style={styles.infoText}>
-                AI-Powered Leaf Disease Detection App
-              </Text>
-            </View>
+        <View style={styles.welcomeContainer}>
+          <Text style={styles.headerText}>Welcome to Leaf Care</Text>
+          <Text style={styles.infoText}>
+            AI-Powered Leaf Disease Detection App
+          </Text>
+        </View>
 
-            <CaptureButton onPress={handleImageSelection} imageSource={require('../assets/Leafbutton.png')} />
-            {/* <Text style={styles.noPrediction}>      Upload/Capture an image</Text>; */}
-            {/* <Output predictions={predictions} /> */}
-            <Text style={styles.noPrediction}>{pre}</Text>
-            <View style={styles.searchContainer}>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search plant by name"
-                value={searchQuery}
-                onChangeText={(e) => { setSearchQuery(e); updateSearchQuery(e); }}
-                onSubmitEditing={() =>{ handleSubmitEditing}}
-              />
-              
-            <View style={styles.liist}>
-                <FlatList
-                  data={displaySuggestions}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => { setSearchQuery(item); handleSubmitEditing(); }}>
-                      <Text>{item}</Text>
-                    </TouchableOpacity>
-                  )}
-                  keyExtractor={(item, index) => index.toString()}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={()=>{handleSubmitEditing, 
-                  navigation.navigate(
-                      { name:'Disease Details',
-                        params:
-                          { val: val, searchQuery:searchQuery }
-                      }) 
-                }}
-                style={styles.searchButton}>
-                <MaterialIcons name="search" size={25} color="#FFFFFF" />
-              </TouchableOpacity>
+        <CaptureButton onPress={handleImageSelection} imageSource={require('../assets/Leafbutton.png')} />
+        {/* <Text style={styles.noPrediction}>      Upload/Capture an image</Text>; */}
+        {/* <Output predictions={predictions} /> */}
+        {processedImageUri && <Image source={{ uri: processedImageUri }} style={styles.localimage} />}
 
-            </View>
-        </ScrollView>
-      </ImageBackground>
+        <Text style={styles.noPrediction}>{pre}</Text>
+
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search plant by name"
+            value={searchQuery}
+            onChangeText={(e) => { setSearchQuery(e); updateSearchQuery(e); }}
+            onSubmitEditing={() => { handleSubmitEditing }}
+          />
+
+          <View style={styles.liist}>
+            <FlatList
+              data={displaySuggestions}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => { setSearchQuery(item); handleSubmitEditing(); }}>
+                  <Text>{item}</Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              handleSubmitEditing,
+                navigation.navigate(
+                  {
+                    name: 'Disease Details',
+                    params:
+                      { val: val, searchQuery: searchQuery }
+                  })
+            }}
+            style={styles.searchButton}>
+            <MaterialIcons name="search" size={25} color="#FFFFFF" />
+          </TouchableOpacity>
+
+        </View>
+      </ScrollView>
+    </ImageBackground>
 
     // </KeyboardAvoidingView>
   );
@@ -554,7 +590,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 10,
     marginRight: 10,
-   
+
 
 
   },
@@ -598,10 +634,10 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-   // marginTop: 5, // Add margin at the top to place it below the buttons
+    // marginTop: 5, // Add margin at the top to place it below the buttons
     alignSelf: 'center', // Center the container
     width: '90%', // Increase the width to make the search box appear bigger
-    
+
   },
 
   // Adjust the searchInput to fill the searchContainer
@@ -665,6 +701,11 @@ const styles = StyleSheet.create({
     width: '90%',
     height: '100%',
     borderRadius: 10,
+  },
+  localimage: {
+    width: 300,
+    height: 300,
+    margin: 10,
   },
   button: {
     alignItems: 'center',
@@ -751,11 +792,11 @@ const styles = StyleSheet.create({
     // flex: 1,
     // width: '100%',
     // height: '100%',
-    position: 'absolute', 
-   top: 0,
-    left: 0, 
+    position: 'absolute',
+    top: 0,
+    left: 0,
     right: 0,
-     bottom: 0
+    bottom: 0
 
   },
   cardContainer: {
@@ -814,18 +855,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  liist:{
+  liist: {
     //flexDirection: 'row',
-     // paddingHorizontal: 20,
-      //marginTop: 20, // Add margin at the top to place it below the buttons
-      alignSelf: 'center', // Center the container
-      //width: '90%',
-     // marginLeft:10,
+    // paddingHorizontal: 20,
+    //marginTop: 20, // Add margin at the top to place it below the buttons
+    alignSelf: 'center', // Center the container
+    //width: '90%',
+    // marginLeft:10,
   },
   noPrediction: {
     fontSize: 16,
     color: 'gray',
-    marginLeft:80,
+    marginLeft: 80,
     padding: 15,
   },
 });

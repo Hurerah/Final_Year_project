@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
-import { Card, ListItem, Icon } from 'react-native-elements';
+import { Card, ListItem } from 'react-native-elements';
 
 const LeafTypeScreen = ({ route }) => {
   const { leafType, disease, causes, remedies } = route.params;
@@ -12,7 +12,7 @@ const LeafTypeScreen = ({ route }) => {
         <Text style={styles.headerSubtitle}>Diagnosis and Remedies</Text>
       </View>
       <Card containerStyle={styles.card}>
-      <ListItem bottomDivider containerStyle={styles.listItem}>
+        <ListItem bottomDivider containerStyle={styles.listItem}>
           <ListItem.Content style={styles.listItemContent}>
             <Text style={styles.title}>Leaf Type:</Text>
             <Text style={styles.value}>{leafType}</Text>
@@ -24,18 +24,22 @@ const LeafTypeScreen = ({ route }) => {
             <Text style={styles.value}>{disease}</Text>
           </ListItem.Content>
         </ListItem>
-        <ListItem bottomDivider>
-          <ListItem.Content>
-            <ListItem.Title style={styles.title}>Causes:</ListItem.Title>
-            <ListItem.Subtitle style={styles.subtitle}>{causes}</ListItem.Subtitle>
-          </ListItem.Content>
-        </ListItem>
-        <ListItem bottomDivider>
-          <ListItem.Content>
-            <ListItem.Title style={styles.title}>Remedies:</ListItem.Title>
-            <ListItem.Subtitle style={styles.subtitle}>{remedies}</ListItem.Subtitle>
-          </ListItem.Content>
-        </ListItem>
+        {causes && (
+          <ListItem bottomDivider>
+            <ListItem.Content>
+              <ListItem.Title style={styles.title}>Causes:</ListItem.Title>
+              <ListItem.Subtitle style={styles.subtitle}>{causes}</ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
+        )}
+        {remedies && (
+          <ListItem bottomDivider>
+            <ListItem.Content>
+              <ListItem.Title style={styles.title}>Remedies:</ListItem.Title>
+              <ListItem.Subtitle style={styles.subtitle}>{remedies}</ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
+        )}
       </Card>
     </ScrollView>
   );
@@ -44,18 +48,15 @@ const LeafTypeScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fffde2', // Based on the background color of the image
-    
+    backgroundColor: '#fffde2',
   },
   header: {
-    //paddingVertical: 10,
-    backgroundColor: '#023020', // Based on the header color of the image
-    
+    backgroundColor: '#023020',
     paddingBottom: 10,
-    paddingTop:10,
+    paddingTop: 10,
     marginTop: 20,
-    marginLeft:15,
-    marginRight:15,
+    marginLeft: 15,
+    marginRight: 15,
     borderBottomStartRadius: 10,
     borderBottomEndRadius: 10,
     borderTopStartRadius: 10,
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#ffedd5', // Based on the subtitle color of the image
+    color: '#ffedd5',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -87,9 +88,9 @@ const styles = StyleSheet.create({
   subtitle: {
     paddingTop: 7,
     fontSize: 20,
-    color: '#555', // Based on the subtitle color of the image
-    textAlign:'justify'
-},
+    color: '#555',
+    textAlign: 'justify',
+  },
   listItem: {
     paddingVertical: 10,
   },
@@ -101,13 +102,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#023020', // Title color
+    color: '#023020',
   },
   value: {
     fontSize: 20,
-    color: '#000000', // Value color
+    color: '#000000',
   },
-  // ...rest of your styles (e.g., for the navigation button)
 });
 
 export default LeafTypeScreen;
