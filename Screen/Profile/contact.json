@@ -1,15 +1,15 @@
 {
-    "name": "Darrell Schmeler",
-    "username": "Leola_VonRueden",
+    "name": "ABU HURERAH",
+    "username": "HURERAH",
     "address": {
-      "streetA": "Abbott Shoals",
+      "streetA": "MUSLIM BLOCK",
       "streetB": "505 Winona Place",
       "streetC": "4306 Hudson Street Suite 875",
       "streetD": "Suite 489",
-      "city": "Ginatown",
-      "state": "Massachusetts",
-      "country": "Nepal",
-      "zipcode": "41428-0189",
+      "city": "Fsd",
+      "state": "Pakistan",
+      "country": "Pakistan",
+      "zipcode": "38000",
       "geo": {
         "lat": "-75.8513",
         "lng": "81.3262"
@@ -27,12 +27,12 @@
     "avatarBackground":
       "https://i.imgur.com/rXVcgTZ.jpg",
     "tels": [
-      { "id": 1, "name": "Mobile", "number": "+66 (089)-928-2134" },
-      { "id": 2, "name": "Work", "number": "+41 (112)-435-9887" }
+      { "id": 1, "name": "Mobile", "number": "+92 348 2685910" }
     ],
     "emails": [
-      { "id": 1, "name": "Personal", "email": "elsie-goodman@mail.com" },
-      { "id": 2, "name": "Work", "email": "elsie@work.com" }
+      { "id": 1, "name": "Personal", "email": "abuhurerah.saleem@gmail.com" },
+      { "id": 2, "name": "Work", "email": "F200259@cfd.nu.edu.pk" }
+
     ],
     "posts": [
       {

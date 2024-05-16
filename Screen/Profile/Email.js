@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   emailIcon: {
-    color: 'gray',
+    color: '#023020',
     fontSize: 30,
   },
   emailNameColumn: {

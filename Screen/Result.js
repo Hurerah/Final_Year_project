@@ -1,9 +1,22 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, Image } from 'react-native';
 import { Card, ListItem } from 'react-native-elements';
 
 const LeafTypeScreen = ({ route }) => {
-  const { leafType, disease, causes, remedies } = route.params;
+  const { leafType, disease, causes, remedies, image, data } = route.params;
+  
+  // Function to check if the disease is one of the specified values
+  const isPest = (disease) => {
+    const pestDiseases = [
+      'Spider Mites',
+      'Mosaic Virus',
+      'Yellow Leaf Curl Virus',
+      'Canker',
+      'Pestalotiopsis',
+      'Sigatoka'
+    ];
+    return pestDiseases.includes(disease);
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -12,6 +25,23 @@ const LeafTypeScreen = ({ route }) => {
         <Text style={styles.headerSubtitle}>Diagnosis and Remedies</Text>
       </View>
       <Card containerStyle={styles.card}>
+        {/* Image and Severity */}
+        <ListItem bottomDivider containerStyle={styles.listItem}>
+          <ListItem.Content style={styles.listItemContent}>
+            <Text style={styles.title}>Localized Area:</Text>
+          </ListItem.Content>
+          {image && (
+            <Image source={{ uri: image }} style={styles.image} />
+          )}
+        </ListItem>
+        <ListItem bottomDivider containerStyle={styles.listItem}>
+          <ListItem.Content style={styles.listItemContent}>
+            <Text style={styles.title}>Severity:</Text>
+            <Text style={styles.value}>{data}</Text>
+          </ListItem.Content>
+        </ListItem>
+
+        {/* Leaf Type and Disease */}
         <ListItem bottomDivider containerStyle={styles.listItem}>
           <ListItem.Content style={styles.listItemContent}>
             <Text style={styles.title}>Leaf Type:</Text>
@@ -20,10 +50,12 @@ const LeafTypeScreen = ({ route }) => {
         </ListItem>
         <ListItem bottomDivider containerStyle={styles.listItem}>
           <ListItem.Content style={styles.listItemContent}>
-            <Text style={styles.title}>Disease:</Text>
+            <Text style={styles.title}>{isPest(disease) ? 'Pest' : 'Disease'}:</Text>
             <Text style={styles.value}>{disease}</Text>
           </ListItem.Content>
         </ListItem>
+
+        {/* Causes and Remedies */}
         {causes && (
           <ListItem bottomDivider>
             <ListItem.Content>
@@ -107,6 +139,13 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 20,
     color: '#000000',
+  },
+  image: {
+    width: 200,
+    height: 150,
+    borderRadius: 10,
+    marginTop: 10,
+    alignSelf: 'center',
   },
 });
 

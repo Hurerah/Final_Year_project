@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   smsIcon: {
-    color: 'darkgray',
+    color: "#023020",
     fontSize: 30,
   },
   smsRow: {
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   telIcon: {
-    color: mainColor,
+    color: "#023020",
     fontSize: 30,
   },
   telNameColumn: {

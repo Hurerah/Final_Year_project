@@ -1,6 +1,37 @@
 // React and React Native core imports
-import React, { useState, useEffect } from 'react';
+// import React, { useState, useEffect } from 'react';
 
+// import {
+//   StyleSheet,
+//   Button,
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   Modal,
+//   Image,
+//   ScrollView,
+//   ActivityIndicator,
+//   TextInput,
+//   Alert,
+//   KeyboardAvoidingView,
+//   Platform,
+//   ImageBackground,
+//   FlatList
+// } from 'react-native';
+// // Third-party imports for icons and TensorFlow.js
+// import { MaterialIcons } from '@expo/vector-icons';
+// import * as tf from '@tensorflow/tfjs';
+// import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
+// import CaptureButton from '../component/CaptureButton';
+// // Expo permissions and image picker for handling media
+// import * as ImagePicker from 'expo-image-picker';
+// // Additional utilities
+// import * as jpeg from 'jpeg-js';
+
+// // Local imports from your project structure
+// import POPULAR_PLANTS from '../src/api/diseases';
+
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,10 +46,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ImageBackground,
+  Button,
   FlatList
 } from 'react-native';
 // Third-party imports for icons and TensorFlow.js
 import { MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native';
 import * as tf from '@tensorflow/tfjs';
 import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
 import CaptureButton from '../component/CaptureButton';
@@ -29,9 +62,6 @@ import * as jpeg from 'jpeg-js';
 
 // Local imports from your project structure
 import POPULAR_PLANTS from '../src/api/diseases';
-
-
-
 
 class CustomL2Regularizer {
   constructor(l2) {
@@ -81,7 +111,8 @@ export default HomeScreen = ({ navigation }) => {
   const [displaySuggestions, setDisplaySuggestions] = useState([]);
   const [suggestions, setsuggestions] = useState([]);
   const [thresholdedImageUri, setThresholdedImageUri] = useState(null);
-
+  const [data, setData] = useState(null);
+  const [imageUrl2, setImageUrl2] = useState(null); // Add this state at the top where you define your other state variables
 
   const loadModel = async (modelJson, modelWeights) => {
     await tf.ready(); // Ensure TensorFlow.js is ready
@@ -109,9 +140,7 @@ export default HomeScreen = ({ navigation }) => {
     setBananaModel(model6)
     // Use model2 as needed
   };
-  // useEffect(()=>{
-  //       setPre('Processing')
-  //     },[test])
+
 
   useEffect(() => {
     loadModelsSequentially()
@@ -153,15 +182,17 @@ export default HomeScreen = ({ navigation }) => {
       navigation.navigate({
         name: 'Result',
         params:
-          { leafType: leafType, disease: foundplant.name, causes: foundplant.causes, remedies: foundplant.remedies }
+          { leafType: leafType, disease: foundplant.name, causes: foundplant.causes, remedies: foundplant.remedies,image:imageUrl2 ,data:data }
       })
     }
-  }, [predictions])
+  }, [predictions],[imageUrl2])
 
   const resetState = () => {
     setImage(null);
     setPredictions(null);
     setIsAnalyzing(false);
+    setImageUrl2(null)
+    setData(null)
   };
   const determineDisease = (diseaseIndex, leafTypeIndex) => {
     let leafType = '';
@@ -264,91 +295,11 @@ export default HomeScreen = ({ navigation }) => {
     return resizedImg.expandDims(0).toFloat().div(tf.scalar(255));
   };
 
-  // const applyThreshold = (imgTensor, threshold) => {
-  //   return imgTensor.div(tf.scalar(255)) // Normalize the image to [0, 1]
-  //     .greater(tf.scalar(threshold)) // Apply threshold
-  //     .mul(tf.scalar(255)); // Scale back to [0, 255] for image display
-  // };
-  // // const [imageUri, setImageUri] = useState(null);
-
-
-  const [imageUri, setImageUri] = useState(null);
-  const [processedImageUri, setProcessedImageUri] = useState(null);
-  
-  const processImage = async (base64) => {
-    const imageTensor = tf.browser.fromPixels({
-      data: new Uint8Array(tf.util.base64.decode(base64)),
-      width: 1080,
-      height: 1920
-    });
-  
-    // Convert to grayscale
-    const gray = imageTensor.mean(2);
-  
-    // Apply threshold
-    const thresholded = gray.step(127); // Threshold value can be adjusted
-    
-    // Convert back to image
-    const blob = await tf.browser.toBlob(thresholded);
-    const urlCreator = window.URL || window.webkitURL;
-    const imageUrl = urlCreator.createObjectURL(blob);
-    console.log(imageUrl)
-    setProcessedImageUri(imageUrl);
-  };
-  
-  useEffect(() => {
-    if (processedImageUri) {
-      console.log('Image URI:', processedImageUri);
-      // You can also navigate or do further processing here
-    }
-  }, [processedImageUri]); // This will log or perform actions every time processedImageUri updates
-  
-// Assuming you're handling the response somewhere here
-
-
-
-
-
-  // const tensorToUri = async (tensor) => {
-  //   try {
-  //     const byteData = await tensor.data(); // Get tensor data as TypedArray
-  //     const shape = tensor.shape;
-  //     const width = shape[1];
-  //     const height = shape[0];
-
-  //     // Assuming tensor is a 3D tensor (height x width x 3)
-  //     const imageData = new Uint8Array(width * height * 4);
-
-  //     let pixelIndex = 0;
-  //     for (let i = 0; i < byteData.length; i += 3) {
-  //       imageData[pixelIndex++] = byteData[i];     // R
-  //       imageData[pixelIndex++] = byteData[i + 1]; // G
-  //       imageData[pixelIndex++] = byteData[i + 2]; // B
-  //       imageData[pixelIndex++] = 255;             // A
-  //     }
-
-  //     // Convert image data to base64
-  //     const rawImageData = { data: imageData, width, height };
-  //     const blob = new Blob([imageData], { type: 'image/png' });
-  //     const reader = new FileReader();
-  //     reader.readAsDataURL(blob);
-  //     reader.onloadend = function () {
-  //       const base64data = reader.result;
-  //       //console.log(base64data);
-  //       return base64data;
-  //     }
-  //   } catch (error) {
-  //     console.error("Error processing tensor to URI:", error);
-  //     throw error;
-  //   }
-  // };
 
 
 
 
   const handleImageSelection = async () => {
-
-
     try {
       const cameraPermissionResult = await ImagePicker.requestCameraPermissionsAsync();
       const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -358,60 +309,102 @@ export default HomeScreen = ({ navigation }) => {
         return;
       }
 
-
+      const action = await showImagePickerOptions(); // Assume this function is implemented correctly
       let response = null;
-      const action = await showImagePickerOptions(); // Implement this function based on your UI
+
       if (action === 'camera') {
-        response = await ImagePicker.launchCameraAsync();
-      }
-      else {
+        response = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          quality: 1,
+          aspect: [6, 4],
+          base64: true,
+        });
+      } else {
         response = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           quality: 1,
-          aspect: [4, 3],
+          aspect: [6, 4],
+          base64: true,
         });
       }
-      // Convert image to tensor
-      const imageTensorSize224 = await imageToTensor(response, 224);
-  
-      const leafTypePrediction = await LeafTypemodel.predict(imageTensorSize224).data();
-      console.log(leafTypePrediction)
-      const leafTypeIndex = leafTypePrediction.indexOf(Math.max(...leafTypePrediction))
-      console.log(leafTypeIndex)
-      console.log("Listing all layer names:");
-      LeafTypemodel.layers.forEach((layer, index) => {
-        console.log(`Layer ${index + 1}: ${layer.name}`);
-      });
 
+      if (response.uri) {
+        let uriParts = response.uri.split('.');
+        let fileType = uriParts[uriParts.length - 1];
 
-      // Based on the index, decide which model to use for further prediction
-      switch (leafTypeIndex) {
-        case 0: // Apple
-          handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, AppleModel);
-          break;
-        case 1:
-          handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, BananaModel);
-          break;
-        case 2:
-          handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, CitrusModel);
-          break;
-        case 3:
-          handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, CornModel);
-          break;
-        case 4:
-          handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, TomatoModel);
-          break;
-        default:
-          console.log("Leaf type not recognized.");
+        const formData = new FormData();
+        formData.append('file', {
+          uri: response.uri,
+          name: `photo.${fileType}`,
+          type: `image/${fileType}`,
+        });
+
+        fetch('http://192.168.35.83:5000/predict', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+          .then((apiResponse) => apiResponse.json())
+          .then((data) => {
+            console.log('Success on Home:', data);
+            setData(data.diseased_area_ratio)
+            fetchImageFromApi(); // Optionally fetch processed image
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+
+        const imageTensorSize224 = await imageToTensor(response, 224);
+        const leafTypePrediction = await LeafTypemodel.predict(imageTensorSize224).data();
+        const leafTypeIndex = leafTypePrediction.indexOf(Math.max(...leafTypePrediction));
+
+        switch (leafTypeIndex) {
+          case 0:
+            handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, AppleModel);
+            break;
+          case 1:
+            handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, BananaModel);
+            break;
+          case 2:
+            handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, CitrusModel);
+            break;
+          case 3:
+            handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, CornModel);
+            break;
+          case 4:
+            handleSpecificDiseasePrediction(leafTypeIndex, imageTensorSize224, TomatoModel);
+            break;
+          default:
+            console.log("Leaf type not recognized.");
+        }
       }
-
     } catch (error) {
       console.error("Error in handleImageSelection:", error);
-      setIsAnalyzing(false);
+      setIsAnalyzing(false); // Assuming this is part of your component state
     }
-
   };
+
+  const fetchImageFromApi = async () => {
+    try {
+      const response = await fetch('http://192.168.35.83:5000/get_image');//http://192.168.85.83:5000//http://192.168.35.83:5000
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        console.log("Image Data on Home: ", base64data);
+        setImageUrl2(base64data);
+      };
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error('Error fetching image:', error);
+    }
+  };
+
 
   const handleSpecificDiseasePrediction = async (leafTypeIndex, imageTensor, model) => {
     const diseasePrediction = await model.predict(imageTensor).data();
@@ -419,10 +412,8 @@ export default HomeScreen = ({ navigation }) => {
     const diseaseIndex = diseasePrediction.indexOf(Math.max(...diseasePrediction));
     console.log(`Disease Index ${diseaseIndex}, Leaf Type Index ${leafTypeIndex}`);
     const { leafType, disease } = determineDisease(diseaseIndex, leafTypeIndex);
-    console.log(`Disease Name ${disease}, Leaf Type ${leafType}`);
     setLeafType(leafType);
     setDisease(disease);
-
     setPredictions({
       leafType, // The detected type of the leaf
       disease   // The detected disease
@@ -430,7 +421,6 @@ export default HomeScreen = ({ navigation }) => {
 
 
   };
-
   const updateSearchQuery = (input) => {
 
     if (input.length > 2) { // Only show suggestions if the input length is greater than 2
@@ -521,12 +511,15 @@ export default HomeScreen = ({ navigation }) => {
         </View>
 
         <CaptureButton onPress={handleImageSelection} imageSource={require('../assets/Leafbutton.png')} />
-        {/* <Text style={styles.noPrediction}>      Upload/Capture an image</Text>; */}
-        {/* <Output predictions={predictions} /> */}
-        {processedImageUri && <Image source={{ uri: processedImageUri }} style={styles.localimage} />}
-
+        {/* <View style={styles.container}>
+          {imageUrl2 && (
+            <Image
+              source={{ uri: imageUrl2 }}
+              style={styles.localimage}
+            />
+          )}
+        </View> */}
         <Text style={styles.noPrediction}>{pre}</Text>
-
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -703,9 +696,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   localimage: {
-    width: 300,
-    height: 300,
-    margin: 10,
+    width: 200, // You can adjust the size
+    height: 200,
+    resizeMode: 'contain'
   },
   button: {
     alignItems: 'center',

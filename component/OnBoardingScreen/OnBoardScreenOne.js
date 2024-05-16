@@ -9,7 +9,7 @@ const OnBoardingScreenOne = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.navigate('Two');
-    }, 5000); // 3 seconds
+    }, 1000); // 3 seconds
     return () => clearTimeout(timer);
   }, []);
 

@@ -50,7 +50,6 @@ function Profile1StackScreen() {
     </Profile1Stack.Navigator>
   )
 }
-
 // Define Home stack navigator
 const HomeStackScreen = () => (
 

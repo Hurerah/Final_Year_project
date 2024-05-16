@@ -31,14 +31,12 @@ const RegisterScreen = ({navigation}) => {
   const [statuss, setstatuss] = useState('');
   useEffect(() => {
     if (statuss === 'SUCCESS') {
-      setPassword('')
-      setemail("")
-      setusername('')
-      setCnfPassword('')
-      setDate('')
-      navigation.navigate('Homee');;
+      if (dataa != undefined)
+        console.log(dataa.username)
+      navigation.navigate('Homee',{username:dataa[0],email:dataa[2]});;
     }
   }, [statuss]);
+
     // Function to save username and password to AsyncStorage
   const saveCredentialsToStorage = async (email, password) => {
     try {
@@ -71,6 +69,8 @@ const RegisterScreen = ({navigation}) => {
         console.log('storage ',AsyncStorage.getAllKeys());
       })
       .catch(error => {
+        setmessagee('Signup failed:')
+        setstatuss('FAILED')
         console.log('signup failed:', error);
         
       });
